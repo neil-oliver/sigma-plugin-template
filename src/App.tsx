@@ -20,6 +20,68 @@ client.config.configureEditorPanel([
   { name: 'editMode', type: 'toggle', label: 'Edit Mode' }
 ]);
 
+// Mirror of theme presets for applying CSS variables after save
+const PRESET_THEMES: Record<string, { name: string; colors: Record<string, string> }> = {
+  light: {
+    name: 'Light',
+    colors: {
+      '--background': '0 0% 100%',
+      '--foreground': '240 10% 3.9%',
+      '--card': '0 0% 100%',
+      '--card-foreground': '240 10% 3.9%',
+      '--popover': '0 0% 100%',
+      '--popover-foreground': '240 10% 3.9%',
+      '--primary': '240 9% 10%',
+      '--primary-foreground': '0 0% 98%',
+      '--secondary': '240 4.8% 95.9%',
+      '--secondary-foreground': '240 5.9% 10%',
+      '--muted': '240 4.8% 95.9%',
+      '--muted-foreground': '240 3.8% 46.1%',
+      '--accent': '240 4.8% 95.9%',
+      '--accent-foreground': '240 5.9% 10%',
+      '--destructive': '0 84.2% 60.2%',
+      '--destructive-foreground': '0 0% 98%',
+      '--border': '240 5.9% 90%',
+      '--input': '240 5.9% 90%',
+      '--ring': '240 5.9% 10%',
+    },
+  },
+  dark: {
+    name: 'Dark',
+    colors: {
+      '--background': '240 10% 3.9%',
+      '--foreground': '0 0% 98%',
+      '--card': '240 10% 3.9%',
+      '--card-foreground': '0 0% 98%',
+      '--popover': '240 10% 3.9%',
+      '--popover-foreground': '0 0% 98%',
+      '--primary': '0 0% 98%',
+      '--primary-foreground': '240 5.9% 10%',
+      '--secondary': '240 3.7% 15.9%',
+      '--secondary-foreground': '0 0% 98%',
+      '--muted': '240 3.7% 15.9%',
+      '--muted-foreground': '240 5% 64.9%',
+      '--accent': '240 3.7% 15.9%',
+      '--accent-foreground': '0 0% 98%',
+      '--destructive': '0 62.8% 30.6%',
+      '--destructive-foreground': '0 0% 98%',
+      '--border': '240 3.7% 15.9%',
+      '--input': '240 3.7% 15.9%',
+      '--ring': '240 4.9% 83.9%',
+    },
+  },
+};
+
+const applyThemeFromSettings = (settings: PluginSettings): void => {
+  const theme = settings.styling?.theme || 'light';
+  const colors = theme === 'custom'
+    ? (settings.styling?.customColors || PRESET_THEMES.light.colors)
+    : (PRESET_THEMES[theme]?.colors || PRESET_THEMES.light.colors);
+  Object.entries(colors).forEach(([property, value]) => {
+    document.documentElement.style.setProperty(property, value);
+  });
+};
+
 const App: React.FC = (): React.JSX.Element => {
   const config: SigmaConfig = useConfig();
   const sigmaData: SigmaData = useElementData(config.source || '');
@@ -46,6 +108,13 @@ const App: React.FC = (): React.JSX.Element => {
       setSettings(DEFAULT_SETTINGS);
     }
   }, [config.config]);
+
+  // Apply saved styling whenever settings change
+  useEffect(() => {
+    if (settings?.styling) {
+      applyThemeFromSettings(settings);
+    }
+  }, [settings]);
 
   const handleSettingsSave = useCallback((newSettings: PluginSettings): void => {
     setSettings(newSettings);
@@ -95,7 +164,7 @@ const App: React.FC = (): React.JSX.Element => {
         }}
       >
         <div className="text-center max-w-xl">
-          <h3 className="text-lg font-semibold mb-2">Sigma Plugin Template</h3>
+          <h3 className="text-lg font-semibold mb-2">{settings.title || 'Sigma Plugin Template'}</h3>
           <p className="text-muted-foreground">Please select a data source to get started.</p>
         </div>
       </div>
@@ -141,7 +210,7 @@ const App: React.FC = (): React.JSX.Element => {
       
       <div className="w-full h-screen flex items-center justify-center p-5 box-border">
         <div className="text-center max-w-xl">
-          <h3 className="text-lg font-semibold mb-4">Sigma Plugin Template</h3>
+          <h3 className="text-lg font-semibold mb-4">{settings.title || 'Sigma Plugin Template'}</h3>
           
           {dataInfo ? (
             <div className="space-y-4">
@@ -181,4 +250,6 @@ const App: React.FC = (): React.JSX.Element => {
   );
 };
 
-export default App; 
+export default App;
+
+

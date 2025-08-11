@@ -11,10 +11,23 @@ export interface SigmaData {
   [columnName: string]: (string | number | boolean | null)[];
 }
 
+export interface PluginSettingsStyling {
+  theme: 'light' | 'dark' | 'custom';
+  customColors: Record<string, string>; // CSS var values like "240 5% 10%" or "240 5% 10% / 1"
+  enableDynamicTheming?: boolean;
+}
+
 // Plugin settings interface
 export interface PluginSettings {
+  // Example non-styling setting(s)
+  title?: string;
+
+  // Back-compat simple colors (may be overridden by styling vars)
   backgroundColor: string;
   textColor: string;
+
+  // New styling block for theme tokens
+  styling?: PluginSettingsStyling;
 }
 
 // Data information interface
@@ -39,7 +52,7 @@ export interface SigmaClient {
   };
 }
 
-// Settings component props with proper client typing
+// Settings component props with proper client typing (optional)
 export interface SettingsProps {
   isOpen: boolean;
   onClose: () => void;
@@ -54,9 +67,11 @@ export interface ConfigParseError {
   originalError: unknown;
 }
 
-// Event handler types
+// Event handler types (kept for potential use)
 export interface ColorChangeEvent {
   target: {
     value: string;
   };
-} 
+}
+
+
