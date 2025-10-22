@@ -4,6 +4,10 @@ export interface SigmaConfig {
   dataColumn?: string;
   config?: string;
   editMode?: boolean;
+  // Control variable example
+  selectedValue?: string;
+  // Action trigger example
+  onValueSelect?: string;
 }
 
 // Sigma data structure - more specific typing

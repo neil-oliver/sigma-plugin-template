@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { client, useConfig, useElementData, useElementColumns } from '@sigmacomputing/plugin';
+import { client, useConfig, useElementData, useElementColumns, useVariable, useActionTrigger } from '@sigmacomputing/plugin';
 import { Button } from './components/ui/button';
 import { Settings as SettingsIcon } from 'lucide-react';
 import Settings, { DEFAULT_SETTINGS } from './Settings';
@@ -12,12 +12,16 @@ import {
 } from './types/sigma';
 import './App.css';
 
-// Configure the plugin editor panel
+// Configure the plugin editor panel with control variables and action triggers
 client.config.configureEditorPanel([
   { name: 'source', type: 'element' },
   { name: 'dataColumn', type: 'column', source: 'source', allowMultiple: false, label: 'Data Column' },
   { name: 'config', type: 'text', label: 'Settings Config (JSON)', defaultValue: "{}" },
-  { name: 'editMode', type: 'toggle', label: 'Edit Mode' }
+  { name: 'editMode', type: 'toggle', label: 'Edit Mode' },
+  // Control variable example - can be used to pass data between plugin and workbook
+  { name: 'selectedValue', type: 'variable', label: 'Selected Value Variable' },
+  // Action trigger example - can be used to trigger actions in the workbook
+  { name: 'onValueSelect', type: 'action-trigger', label: 'On Value Select Action' }
 ]);
 
 // Mirror of theme presets for applying CSS variables after save
@@ -89,6 +93,14 @@ const App: React.FC = (): React.JSX.Element => {
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [settings, setSettings] = useState<PluginSettings>(DEFAULT_SETTINGS);
 
+  // Example: Using control variable to read/write values
+  // The first element is the current value, the second is a setter function
+  const [selectedValue, setSelectedValue] = useVariable(config.selectedValue || '');
+  
+  // Example: Using action trigger to trigger workbook actions
+  // This returns a function that triggers the configured action
+  const triggerOnValueSelect = useActionTrigger(config.onValueSelect || '');
+
   // Parse config JSON and load settings
   useEffect(() => {
     if (config.config?.trim()) {
@@ -128,6 +140,23 @@ const App: React.FC = (): React.JSX.Element => {
   const handleCloseSettings = useCallback((): void => {
     setShowSettings(false);
   }, []);
+
+  // Example: Function that sets a control variable and triggers an action
+  const handleValueClick = useCallback(async (value: string): Promise<void> => {
+    try {
+      // Set the control variable with the selected value
+      await setSelectedValue(value);
+      
+      // Trigger the action (e.g., could trigger a refresh, navigation, etc. in the workbook)
+      if (triggerOnValueSelect) {
+        await triggerOnValueSelect();
+      }
+      
+      console.log(`Selected value "${value}" and triggered action`);
+    } catch (error) {
+      console.error('Error handling value selection:', error);
+    }
+  }, [setSelectedValue, triggerOnValueSelect]);
 
   // Get data information
   const getDataInfo = useCallback((): DataInfo | null => {
@@ -220,6 +249,44 @@ const App: React.FC = (): React.JSX.Element => {
                   <span className="font-semibold">{dataInfo.rowCount}</span> rows loaded from{' '}
                   <span className="font-semibold">"{dataInfo.columnName}"</span>
                 </p>
+              </div>
+
+              {/* Example: Control Variable & Action Trigger Demo */}
+              <div className="bg-white/10 rounded-lg p-6 border border-white/20">
+                <h4 className="text-md font-medium mb-3">Control Variable & Action Example</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Click a button to set a control variable and trigger an action
+                </p>
+                
+                {selectedValue && (
+                  <p className="text-sm mb-3">
+                    Current Value: <span className="font-semibold">{String(selectedValue)}</span>
+                  </p>
+                )}
+                
+                <div className="flex gap-2 justify-center">
+                  <Button 
+                    onClick={() => handleValueClick('Option A')}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Select Option A
+                  </Button>
+                  <Button 
+                    onClick={() => handleValueClick('Option B')}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Select Option B
+                  </Button>
+                  <Button 
+                    onClick={() => handleValueClick('Option C')}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Select Option C
+                  </Button>
+                </div>
               </div>
               
               <p className="text-sm text-muted-foreground">
