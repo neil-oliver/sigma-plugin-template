@@ -99,6 +99,12 @@ src/
 3. **Error Handling**: Add proper error boundaries and loading states
 4. **Responsive Design**: Ensure your plugin works in different container sizes
 
+## AI Skills
+
+Claude agent skills for Sigma plugin development have been moved to a dedicated repository: [sigma-plugin-skills](https://github.com/neil/sigma-plugin-skills).
+
+These skills provide specialized AI guidance for building Sigma plugins, including development patterns, best practices, and workflow automation. Refer to that repo for installation and usage instructions.
+
 ## License
 
 This template is provided as-is for building Sigma Computing plugins.
