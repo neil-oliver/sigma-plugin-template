@@ -101,7 +101,7 @@ src/
 
 ## AI Skills
 
-Claude agent skills for Sigma plugin development have been moved to a dedicated repository: [sigma-plugin-skills](https://github.com/neil/sigma-plugin-skills).
+Claude agent skills for Sigma plugin development have been moved to a dedicated repository: [sigma-plugin-skills](https://github.com/neil-oliver/sigma-plugin-skills).
 
 These skills provide specialized AI guidance for building Sigma plugins, including development patterns, best practices, and workflow automation. Refer to that repo for installation and usage instructions.
 
